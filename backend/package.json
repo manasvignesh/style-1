@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "server": "tsx server.ts",
     "dev": "tsx watch server.ts",
     "start": "tsx server.ts"
   },

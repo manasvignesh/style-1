@@ -49,6 +49,7 @@ app.use((req, _res, next) => {
 
 // ── Routes ──
 app.use('/api/style', styleRouter);
+app.use('/', styleRouter);
 app.use('/api/weather', weatherRouter);
 
 // ── Health check ──

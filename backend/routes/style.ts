@@ -210,10 +210,7 @@ router.post('/analyze', upload.single('image'), async (req: Request, res: Respon
   }
 });
 
-// ============================================
-// POST /api/style/suggest
-// ============================================
-router.post('/suggest', async (req: Request, res: Response): Promise<void> => {
+async function handleSuggest(req: Request, res: Response): Promise<void> {
   const { items, occasion } = req.body;
 
   if (!items || !occasion) {
@@ -228,7 +225,18 @@ router.post('/suggest', async (req: Request, res: Response): Promise<void> => {
     logger.error('GEMINI', 'Failed to generate suggestions', error.message);
     res.status(500).json({ error: 'Failed to generate suggestions' });
   }
-});
+}
+
+// ============================================
+// POST /api/style/suggest
+// ============================================
+router.post('/suggest', handleSuggest);
+
+// ============================================
+// POST /recommend
+// Compatibility alias for deployments expecting this path
+// ============================================
+router.post('/recommend', handleSuggest);
 
 // ============================================
 // POST /api/style/try-on
