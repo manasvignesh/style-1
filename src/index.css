@@ -1,0 +1,176 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #fff5f2;
+  --color-brand-100: #ffede6;
+  --color-brand-200: #ffd8cc;
+  --color-brand-300: #ffb499;
+  --color-brand-400: #ff845c; /* Soft orange */
+  --color-brand-500: #ff5722; /* Primary Deep Orange */
+  --color-brand-600: #e64a19; /* Strong Red-Orange */
+  
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #fffaf9; /* Warm off-white background */
+  color: #1f2937;
+  -webkit-font-smoothing: antialiased;
+}
+
+.soft-shadow {
+  box-shadow: 0 10px 40px -10px rgba(230, 74, 25, 0.12);
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Animations for hotspots */
+@keyframes pulse-soft {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.9; }
+}
+
+.hotspot-pulse {
+  animation: pulse-soft 2s infinite ease-in-out;
+}
+
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+.bg-brand-gradient {
+  background: linear-gradient(135deg, #ff845c 0%, #ff5722 100%);
+}
+
+.bg-brand-gradient-hover {
+  background: linear-gradient(135deg, #ff5722 0%, #e64a19 100%);
+}
+
+.text-brand-gradient {
+  background: linear-gradient(135deg, #ff845c 0%, #ff5722 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px 0 rgba(230, 74, 25, 0.08);
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+}
+
+.markdown-body {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.markdown-body h1, .markdown-body h2, .markdown-body h3 {
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: #111827;
+}
+
+.markdown-body p {
+  margin-bottom: 1rem;
+  color: #374151;
+}
+
+.markdown-body ul {
+  list-style-type: none;
+  margin-bottom: 1.25rem;
+}
+
+.markdown-body li {
+  margin-bottom: 0.5rem;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.markdown-body li::before {
+  content: "•";
+  color: var(--color-brand-400);
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+}
+
+.markdown-body strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Wardrobe Mannequin System */
+@keyframes zonePulse {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(99,102,241,0.3)); }
+  50% { filter: drop-shadow(0 0 14px rgba(99,102,241,0.6)); }
+}
+@keyframes zoneGlow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+@keyframes floatIn {
+  from { opacity: 0; transform: translateY(60px) scale(0.7); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes subtleBreathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.01); }
+}
+.mannequin-breathe { animation: subtleBreathe 4s ease-in-out infinite; }
+.zone-active { animation: zonePulse 2s ease-in-out infinite; }
+.zone-glow { animation: zoneGlow 2s ease-in-out infinite; }
+.clothing-enter { animation: floatIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+.wardrobe-bg {
+  background: linear-gradient(165deg, #0a0f2e 0%, #121845 40%, #1a1f55 70%, #0e1338 100%);
+}
+.glass-panel {
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.glass-panel-light {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.glow-indigo { box-shadow: 0 0 20px rgba(99,102,241,0.4), 0 0 60px rgba(99,102,241,0.15); }
+.glow-selected { box-shadow: 0 0 0 2px #6366f1, 0 0 20px rgba(99,102,241,0.5); }
+
+/* Progress Bar Animation */
+@keyframes progress {
+  0% { width: 0%; opacity: 1; }
+  50% { width: 70%; opacity: 1; }
+  90% { width: 100%; opacity: 1; }
+  100% { width: 100%; opacity: 0; }
+}
+
+.animate-progress-fast {
+  animation: progress 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
