@@ -62,6 +62,74 @@ interface WeatherSnapshot {
   condition: string;
 }
 
+interface UserProfile {
+  name: string;
+  age: string;
+  height: string;
+  gender: string;
+  preferredFits: string;
+  preferredStyles: string;
+}
+
+const STORAGE_KEYS = {
+  auth: 'agni:isLoggedIn',
+  showGetStarted: 'agni:showGetStarted',
+  showOnboarding: 'agni:showOnboarding',
+  onboardingStep: 'agni:onboardingStep',
+  activeTab: 'agni:activeTab',
+  userProfile: 'agni:userProfile',
+} as const;
+
+const defaultUserProfile: UserProfile = {
+  name: '',
+  age: '',
+  height: '',
+  gender: '',
+  preferredFits: '',
+  preferredStyles: '',
+};
+
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+const apiUrl = (path: string) => `${API_BASE_URL}${path}`;
+
+const readStoredBoolean = (key: string, fallback: boolean) => {
+  if (typeof window === 'undefined') return fallback;
+  const value = window.localStorage.getItem(key);
+  return value === null ? fallback : value === 'true';
+};
+
+const readStoredNumber = (key: string, fallback: number) => {
+  if (typeof window === 'undefined') return fallback;
+  const value = window.localStorage.getItem(key);
+  if (value === null) return fallback;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isNaN(parsed) ? fallback : parsed;
+};
+
+const readStoredTab = () => {
+  if (typeof window === 'undefined') return 'home' as TabType;
+  const value = window.localStorage.getItem(STORAGE_KEYS.activeTab);
+  return value === 'try-on' || value === 'suggestions' || value === 'wardrobe' || value === 'profile' || value === 'home'
+    ? value
+    : 'home';
+};
+
+const readStoredUserProfile = (): UserProfile => {
+  if (typeof window === 'undefined') return defaultUserProfile;
+  const value = window.localStorage.getItem(STORAGE_KEYS.userProfile);
+  if (!value) return defaultUserProfile;
+
+  try {
+    const parsed = JSON.parse(value);
+    return {
+      ...defaultUserProfile,
+      ...parsed,
+    };
+  } catch {
+    return defaultUserProfile;
+  }
+};
+
 const getWeatherStyleTip = (weather: WeatherSnapshot | null, gender: string) => {
   const audience = gender === 'Male' ? 'Men' : gender === 'Female' ? 'Women' : 'Everyone';
 
@@ -110,22 +178,15 @@ const getWeatherStyleTip = (weather: WeatherSnapshot | null, gender: string) => 
 };
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => readStoredBoolean(STORAGE_KEYS.auth, false));
   const [landingView, setLandingView] = useState<'initial' | 'login' | 'signup'>('initial');
-  const [showGetStarted, setShowGetStarted] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [onboardingStep, setOnboardingStep] = useState(1);
-  const [userProfile, setUserProfile] = useState({
-    name: '',
-    age: '',
-    height: '',
-    gender: '',
-    preferredFits: '',
-    preferredStyles: ''
-  });
+  const [showGetStarted, setShowGetStarted] = useState(() => readStoredBoolean(STORAGE_KEYS.showGetStarted, false));
+  const [showOnboarding, setShowOnboarding] = useState(() => readStoredBoolean(STORAGE_KEYS.showOnboarding, false));
+  const [onboardingStep, setOnboardingStep] = useState(() => readStoredNumber(STORAGE_KEYS.onboardingStep, 1));
+  const [userProfile, setUserProfile] = useState<UserProfile>(() => readStoredUserProfile());
   const [weatherTip, setWeatherTip] = useState(() => getWeatherStyleTip(null, ''));
 
-  const [activeTab, setActiveTab] = useState<TabType>('home');
+  const [activeTab, setActiveTab] = useState<TabType>(() => readStoredTab());
   const [selectedOutfitFromSuggest, setSelectedOutfitFromSuggest] = useState<any>(null);
   
   // Cross-app State
@@ -252,7 +313,7 @@ export default function App() {
     try {
       const garmentImage = selectedOutfitFromSuggest?.canvasImage || clothingPreview;
       
-      const response = await fetch('/api/style/try-on', {
+      const response = await fetch(apiUrl('/api/style/try-on'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ personImage: personPreview, garmentImage }),
@@ -267,7 +328,7 @@ export default function App() {
 
       while (status !== 'succeeded' && status !== 'failed') {
         await new Promise(r => setTimeout(r, 2000));
-        const res = await fetch(`/api/style/prediction/${predictionId}`);
+        const res = await fetch(apiUrl(`/api/style/prediction/${predictionId}`));
         const data = await res.json();
         status = data.status;
         if (status === 'succeeded') {
@@ -422,7 +483,7 @@ export default function App() {
       formData.append('style', suggestStyle);
       formData.append('preferences', suggestPreferences);
 
-      const response = await fetch('/api/style/analyze', {
+      const response = await fetch(apiUrl('/api/style/analyze'), {
         method: 'POST',
         body: formData,
       });
@@ -518,13 +579,37 @@ export default function App() {
   };
 
   useEffect(() => {
+    window.localStorage.setItem(STORAGE_KEYS.auth, String(isLoggedIn));
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    window.localStorage.setItem(STORAGE_KEYS.showGetStarted, String(showGetStarted));
+  }, [showGetStarted]);
+
+  useEffect(() => {
+    window.localStorage.setItem(STORAGE_KEYS.showOnboarding, String(showOnboarding));
+  }, [showOnboarding]);
+
+  useEffect(() => {
+    window.localStorage.setItem(STORAGE_KEYS.onboardingStep, String(onboardingStep));
+  }, [onboardingStep]);
+
+  useEffect(() => {
+    window.localStorage.setItem(STORAGE_KEYS.activeTab, activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
+    window.localStorage.setItem(STORAGE_KEYS.userProfile, JSON.stringify(userProfile));
+  }, [userProfile]);
+
+  useEffect(() => {
     if (!isLoggedIn) return;
 
     let cancelled = false;
 
     const loadWeather = async (query: string) => {
       try {
-        const response = await fetch(`/api/weather/current?${query}`);
+        const response = await fetch(apiUrl(`/api/weather/current?${query}`));
         if (!response.ok) throw new Error('Weather unavailable');
         const weather = await response.json();
         if (!cancelled) {

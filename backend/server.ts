@@ -17,11 +17,23 @@ import styleRouter from './routes/style.js';
 import weatherRouter from './routes/weather.js';
 
 const app = express();
-const PORT = parseInt(process.env.BACKEND_PORT || '3001', 10);
+const PORT = parseInt(process.env.PORT || process.env.BACKEND_PORT || '3001', 10);
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:3000',
+  ...(process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim()).filter(Boolean) : []),
+];
 
 // ── Middleware ──
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000'],
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
 }));
 app.use(express.json({ limit: '15mb' }));

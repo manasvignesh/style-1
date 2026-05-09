@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Sparkles, Heart, ChevronRight, ChevronLeft, RefreshCw, Shirt, Camera } from 'lucide-react';
 import { CLOTHING, type ClothingItem } from './WardrobeData';
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+const apiUrl = (path: string) => `${API_BASE_URL}${path}`;
+
 interface OutfitSuggestion {
   cap: string;
   top: string;
@@ -39,7 +42,7 @@ const Suggest: React.FC<{ onBack: () => void, onTryOn: (outfit: any) => void }> 
     );
 
     try {
-      const response = await fetch('/api/style/suggest', {
+      const response = await fetch(apiUrl('/api/style/suggest'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ items: wardrobeItems, occasion }),
